@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Misi Genetika — Hardy-Weinberg</title>
+<style>
+:root{--ink:#18243a;--muted:#63718a;--paper:#f4f7fb;--card:#fff;--accent:#635bdb;--accent2:#16a085;--line:#e4e9f2;--good:#147d52;--bad:#b54747}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#eef2ff,#f3fbf8);font-family:Arial,Helvetica,sans-serif;color:var(--ink);line-height:1.5}
+main{max-width:900px;margin:0 auto;padding:22px 16px 48px}.hero{background:linear-gradient(120deg,#292d68,#6558c9);color:white;padding:28px;border-radius:22px;margin-bottom:18px}
+.kicker{font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;opacity:.85}.hero h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.1;margin:8px 0}.hero p{max-width:680px;margin:8px 0 0;color:#e7e8ff}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;margin:16px 0;box-shadow:0 8px 24px #26345b0b}
+h2{font-size:1.2rem;margin:0 0 12px}h3{margin:0 0 8px;font-size:1.05rem}
+input[type=text],input[type=number]{width:100%;padding:12px;border:1px solid #cfd7e5;border-radius:10px;font-size:1rem;margin:6px 0 12px}
+button{border:0;border-radius:11px;padding:12px 17px;font-weight:700;font-size:.97rem;cursor:pointer;background:var(--accent);color:white}
+button:disabled{opacity:.45;cursor:not-allowed}.secondary{background:#edf0ff;color:#38338e}.green{background:var(--accent2)}
+.meta{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:.92rem}.pill{background:#f0f1ff;color:#4942a6;padding:5px 10px;border-radius:99px;font-weight:700}
+.progress{height:9px;background:#e9edf5;border-radius:99px;overflow:hidden;margin:14px 0}.bar{height:100%;width:0;background:linear-gradient(90deg,#6558c9,#17a58b);transition:width .25s}
+.option{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);padding:12px;border-radius:12px;margin:9px 0;cursor:pointer}.option:has(input:checked){border-color:var(--accent);background:#f5f4ff}.option input{margin-top:5px}
+.feedback{padding:13px;border-radius:12px;margin-top:12px}.correct{background:#eaf8f1;color:#145b3e}.incorrect{background:#fff0ef;color:#873c3c}
+.hidden{display:none}.result{font-size:2rem;font-weight:800;color:var(--accent)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}.stat{background:#f7f8fc;padding:13px;border-radius:12px}.stat strong{display:block;font-size:1.25rem}.small{font-size:.9rem;color:var(--muted)}
+footer{text-align:center;color:var(--muted);font-size:.85rem;margin-top:24px}
+</style>
+</head>
+<body>
+<main>
+<section class="hero">
+<div class="kicker">Game pembelajaran Biologi • Kelas XII</div>
+<h1>🧬 Misi Genetika: Detektif Populasi</h1>
+<p>Tuntaskan lima misi untuk mengungkap frekuensi alel dan genotipe dalam populasi menggunakan prinsip Hardy-Weinberg.</p>
+</section>
+<section class="panel" id="start">
+<h2>Siap memulai misi?</h2>
+<label for="student">Nama pemain / kelompok</label>
+<input id="student" type="text" placeholder="Masukkan nama atau nama kelompok">
+<p class="small">Pilih jawaban terbaik pada setiap misi. Setiap jawaban benar bernilai 10 poin. Setelah kuis, coba kalkulator bonus.</p>
+<button onclick="begin()">Mulai bermain →</button>
+</section>
+<section class="panel hidden" id="game">
+<div class="meta"><span class="pill" id="mission">Misi 1 dari 5</span><span>🧑‍🔬 <b id="player"></b></span><span>⭐ Skor: <b id="score">0</b>/50</span></div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<h2 id="question"></h2><p id="story"></p>
+<div id="choices"></div>
+<div id="feedback" class="hidden feedback"></div>
+<div style="display:flex;justify-content:flex-end;margin-top:14px"><button id="next" onclick="nextQuestion()" disabled>Misi berikutnya →</button></div>
+</section>
+<section class="panel hidden" id="finish">
+<h2>🏆 Misi selesai!</h2><p id="greeting"></p><div class="result" id="finalscore"></div><p id="rank"></p>
+<h3>Jawaban dan konsep penting</h3><p>Ingat persamaan Hardy-Weinberg:</p>
+<div class="grid"><div class="stat"><strong>p + q = 1</strong><span class="small">Frekuensi alel</span></div><div class="stat"><strong>p² + 2pq + q² = 1</strong><span class="small">Frekuensi genotipe</span></div></div>
+</section>
+<section class="panel">
+<h2>🎯 Tantangan Bonus: Kalkulator Hardy-Weinberg</h2>
+<p>Masukkan persentase individu yang menampilkan sifat resesif (q²). Gunakan angka persen, misalnya 9.</p>
+<label for="percent">Fenotipe resesif (%)</label>
+<input type="number" id="percent" min="0" max="100" step="any" placeholder="Contoh: 9">
+<button class="green" onclick="calculate()">Hitung frekuensi</button>
+<div id="calcResult" class="hidden" style="margin-top:15px"></div>
+</section>
+<section class="panel">
+<h2>📚 Ingat konsepnya</h2>
+<p>Dalam populasi yang memenuhi keseimbangan Hardy-Weinberg, frekuensi alel dan genotipe tetap dari generasi ke generasi apabila tidak ada mutasi, migrasi, seleksi alam, perkawinan tidak acak, dan hanyutan genetik yang signifikan.</p>
+</section>
+<footer>Game pembelajaran interaktif • Misi Genetika Hardy-Weinberg</footer>
+</main>
+<script>
+const qs=[
+{q:"Misi 1 — Menemukan alel resesif",s:"Dalam suatu populasi, 9% individu menunjukkan fenotipe resesif. Jika populasi berada dalam keseimbangan Hardy-Weinberg, berapakah nilai q?",a:["0,09","0,30","0,70","0,91"],c:1,e:"Fenotipe resesif adalah q² = 0,09. Maka q = √0,09 = 0,30."},
+{q:"Misi 2 — Menghitung alel dominan",s:"Dari hasil pengamatan diketahui frekuensi alel resesif (q) adalah 0,30. Berapakah frekuensi alel dominan (p)?",a:["0,30","0,49","0,70","0,90"],c:2,e:"Gunakan p + q = 1. Jadi p = 1 − 0,30 = 0,70."},
+{q:"Misi 3 — Mengungkap heterozigot",s:"Sebuah populasi memiliki p = 0,70 dan q = 0,30. Berapakah frekuensi individu heterozigot (2pq)?",a:["0,09","0,21","0,42","0,49"],c:2,e:"Frekuensi heterozigot = 2pq = 2 × 0,70 × 0,30 = 0,42 atau 42%."},
+{q:"Misi 4 — Analisis data populasi",s:"Dari 1.000 individu ditemukan 490 AA, 420 Aa, dan 90 aa. Berapakah frekuensi alel a?",a:["0,21","0,30","0,42","0,49"],c:1,e:"Jumlah alel = 2. Alel a = (2 × 90) + 420 = 600 dari 2.000 alel. q = 600/2.000 = 0,30."},
+{q:"Misi 5 — Menguji keseimbangan",s:"Faktor berikut dapat mengubah frekuensi alel dalam populasi dan menyebabkan populasi menyimpang dari keseimbangan Hardy-Weinberg, yaitu ...",a:["Populasi besar","Perkawinan acak","Tidak terjadi mutasi","Seleksi alam"],c:3,e:"Seleksi alam menyebabkan individu dengan genotipe tertentu memiliki keberhasilan hidup atau reproduksi berbeda sehingga frekuensi alel dapat berubah."}
+];
+let idx=0,score=0,answered=false,name="";
+function begin(){name=document.getElementById('student').value.trim()||'Detektif Genetika';document.getElementById('player').textContent=name;document.getElementById('start').classList.add('hidden');document.getElementById('game').classList.remove('hidden');render()}
+function render(){answered=false;let q=qs[idx];document.getElementById('mission').textContent=`Misi ${idx+1} dari 5`;document.getElementById('question').textContent=q.q;document.getElementById('story').textContent=q.s;document.getElementById('score').textContent=score;document.getElementById('bar').style.width=(idx/5*100)+'%';document.getElementById('feedback').className='hidden feedback';document.getElementById('next').disabled=true;document.getElementById('next').textContent=idx===4?'Lihat hasil →':'Misi berikutnya →';document.getElementById('choices').innerHTML=q.a.map((v,i)=>`<label class="option"><input type="radio" name="answer" value="${i}" onchange="choose(${i})"><span>${String.fromCharCode(65+i)}. ${v}</span></label>`).join('')}
+function choose(n){if(answered)return;answered=true;let q=qs[idx],ok=n===q.c;if(ok)score+=10;document.getElementById('score').textContent=score;let f=document.getElementById('feedback');f.className='feedback '+(ok?'correct':'incorrect');f.innerHTML=`<b>${ok?'Tepat! +10 poin':'Belum tepat.'}</b><br>${q.e}`;document.querySelectorAll('input[name=answer]').forEach(x=>x.disabled=true);document.getElementById('next').disabled=false}
+function nextQuestion(){if(idx<4){idx++;render()}else{document.getElementById('game').classList.add('hidden');document.getElementById('finish').classList.remove('hidden');document.getElementById('bar').style.width='100%';document.getElementById('greeting').textContent=`Hebat, ${name}! Kamu telah menyelesaikan seluruh misi.`;document.getElementById('finalscore').textContent=score+' / 50';document.getElementById('rank').textContent=score>=40?'Gelar: Ahli Genetika 🏅':score>=30?'Gelar: Detektif Genetika 🔎':score>=20?'Gelar: Peneliti Pemula 🧪':'Terus berlatih, calon peneliti! Baca pembahasan dan coba lagi.'}}
+function calculate(){let v=Number(document.getElementById('percent').value),out=document.getElementById('calcResult');if(document.getElementById('percent').value===''||v<0||v>100){out.className='feedback incorrect';out.textContent='Masukkan angka antara 0 sampai 100.';return}let q2=v/100,q=Math.sqrt(q2),p=1-q;out.className='feedback correct';out.innerHTML=`<b>Hasil perhitungan</b><div class="grid"><div class="stat"><strong>q² = ${(q2*100).toFixed(2)}%</strong><span class="small">Fenotipe resesif</span></div><div class="stat"><strong>q = ${q.toFixed(4)}</strong><span class="small">Alel resesif</span></div><div class="stat"><strong>p = ${p.toFixed(4)}</strong><span class="small">Alel dominan</span></div><div class="stat"><strong>${(p*p*100).toFixed(2)}%</strong><span class="small">Genotipe dominan homozigot (p²)</span></div><div class="stat"><strong>${(2*p*q*100).toFixed(2)}%</strong><span class="small">Heterozigot (2pq)</span></div></div>`}
+</script>
+</body>
+</html>
